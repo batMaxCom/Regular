@@ -2,31 +2,76 @@ from pprint import pprint
 import csv
 import re
 
-#
 with open("phonebook_raw.csv", encoding='utf-8') as f:
     rows = csv.reader(f, delimiter=",")
     contacts_list = list(rows)
+
 text = []
-for t in contacts_list:
-    t = ','.join(t)
-    pattern = re.compile(r"(\w+)[\s,](\w+)[\s|,]?(\w+)?,(,{1,2})?(\w+)?([,]{1,2})?(\w+[^0-9+,]*)?,(\w*|(\+7|8)([ \(]*)?(\d{3})[- \)]*(\d{3})[- \)]*(\d{2})[- \)]*(\d{2})([ \(]*)?(доб.)?( )?(\d*)?)[\,)],?([\S*\(\)]*)")
-    result = pattern.sub(r"\1, \2, \3, \5, \7, \8, \19", t)
-    text.append([result])
-
-
-
-
-
 second_text = []
-for t_2 in text:
-    t_2 = ','.join(t_2)
-    pattern_2 = re.compile(r"(\+7|8)([ \(]*)?(\d{3})[- \)]*(\d{3})[- \)]*(\d{2})[- \)]*(\d{2})([ \(]*)?(доб.)?( )?(\d*)?")
-    result_2 = pattern_2.sub(r'+7(\3)\4\5\6 \8\10', t_2)
-    second_text.append([result_2])
+
+def info_correct():
+    for t in contacts_list:
+        t = ','.join(t)
+        pattern = re.compile(
+            r"(\w+)[\s,](\w+)[\s|,]?(\w+)?,(,{1,2})?(\w+)?([,]{1,2})?(\w+[^0-9+,]*)?,(\w*|(\+7|8)([ \(]*)?(\d{3})[- \)]*(\d{3})[- \)]*(\d{2})[- \)]*(\d{2})([ \(]*)?(доб.)?( )?(\d*)?)[\,)],?([\S*\(\)]*)")
+        result = pattern.sub(r"\1,\2,\3,\5,\7,\8,\19", t)
+        text.append([result])
+
+def phone_correct():
+    for t_2 in text:
+        t_2 = ','.join(t_2)
+        pattern_2 = re.compile(
+            r"(\+7|8)([ \(]*)?(\d{3})[- \)]*(\d{3})[- \)]*(\d{2})[- \)]*(\d{2})([ \(]*)?(доб.)?( )?(\d*)?")
+        result_2 = pattern_2.sub(r"+7(\3)\4\5\6 \8\1)?", t_2)
+        second_text.append([result_2])
 
 
-with open("phonebook.csv", "w", newline='') as f:
-  datawriter = csv.writer(f, delimiter=',')
-  for item in second_text:
-    datawriter.writerows([item])
+
+
+def write(info):
+    with open("phonebook.csv", "w", newline='') as f:
+        datawriter = csv.writer(f, delimiter='"', quoting=csv.QUOTE_NONE)
+        for item in info:
+            datawriter.writerows([item])
+
+info_correct()
+phone_correct()
+write(second_text)
+
+
+with open("phonebook.csv") as g:
+    rows = csv.reader(g, delimiter=",")
+    contacts_list_2 = list(rows)
+# print(contacts_list_2)
+
+
+dir_1 = []
+for item in contacts_list_2:
+    dir_list = {f'{item[0]}, {item[1]}': item[2:]}
+    if dir_list.keys() not in [d.keys() for d in dir_1]:
+        dir_1.append(dir_list)
+    else:
+        for dd in dir_1:
+            if dd.keys() == dir_list.keys():
+                zip(dd.values(), dir_list.values())
+
+
+print(dir_1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
